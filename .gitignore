@@ -1,0 +1,10 @@
+# 测试脚本的临时目录（mktemp 不可用时的回退位置）
+test/.tmp-*/
+.tmp-*/
+
+# 编辑器 / 系统杂项
+*.swp
+*~
+.DS_Store
+.idea/
+.vscode/
