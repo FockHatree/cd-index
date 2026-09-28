@@ -114,7 +114,7 @@ make lint     # shellcheck（需自行安装）
 - Linux（Ubuntu），bash 5.3.9 + zsh 5.9
 - 真实 oh-my-zsh 环境（powerlevel10k + `git` `zsh-autosuggestions`
   `zsh-syntax-highlighting` `z` `extract` `web-search`）下交互式实测通过
-- 断言数：bash 39 项、zsh 40 项，全部通过
+- 断言数：bash 40 项、zsh 40 项，全部通过
 
 ### 未验证 / 已知限制
 

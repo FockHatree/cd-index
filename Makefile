@@ -22,7 +22,7 @@ check:           ## 语法检查（不需要额外依赖）
 	done
 
 lint:            ## shellcheck 静态检查（需自行安装 shellcheck）
-	shellcheck cd-index.bash install.sh test/run.sh test/bash.sh
+	shellcheck -x -P . cd-index.bash install.sh test/run.sh test/bash.sh
 
 install:         ## 安装到 ~/.bashrc 与 oh-my-zsh
 	./install.sh

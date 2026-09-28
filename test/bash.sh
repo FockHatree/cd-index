@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2164
 # cd-index 的 bash 自测。用法: bash test/bash.sh
 #
 # 期望值全部从 ls 现算（不硬编码顺序），所以换 locale 也不会误报。
+# 本文件里的 cd 就是被测对象：cd 失败本身正是要断言的情形，所以刻意不写 || exit。
 set -u
 
 HERE=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -18,7 +20,8 @@ mkdir -p -- "$ROOT/alpha/child"
 touch -- "$ROOT/file1" "$ROOT/file2" "$ROOT/alpha/inner.txt"
 
 cd -- "$ROOT" || exit 1
-# shellcheck source=../cd-index.bash
+# source= 的路径相对「运行 shellcheck 的目录」(仓库根) 解析，配合 shellcheck -x
+# shellcheck source=cd-index.bash
 source "$REPO/cd-index.bash" || exit 1
 
 pass=0 fail=0
@@ -34,6 +37,8 @@ expect_rc() { # 描述 期望退出码 实际退出码
 
 echo "== 排序基准（应与 ls 一致）=="
 LS_DIRS=()
+# 这里刻意用 ls 而不是 find：README 声称排序与 ls 一致，所以要以 ls 为独立基准来验
+# shellcheck disable=SC2012
 while IFS= read -r line; do LS_DIRS+=( "$line" ); done \
   < <(ls -d -- */ 2>/dev/null | sed 's:/$::')
 printf '  ls 顺序: %s\n' "${LS_DIRS[*]}"
@@ -72,7 +77,7 @@ expect_pwd "空目录 cd ./1 不改变目录" "$ROOT/alpha/empty"
 
 echo "== 5. 隐藏目录默认不计入，CD_INDEX_ALL=1 时计入 =="
 builtin cd -- "$ROOT"
-n_nodots=$(ls -d -- */ 2>/dev/null | wc -l)
+n_nodots=$(find . -maxdepth 1 -mindepth 1 -type d ! -name '.*' | wc -l)   # 排除隐藏目录，与 */ 语义一致
 cd ./1 >/dev/null 2>&1
 if [[ $PWD != "$ROOT/.hidden" ]]; then ok "默认跳过 .hidden"; else bad "默认跳过 .hidden" "PWD=$PWD"; fi
 builtin cd -- "$ROOT"
@@ -100,6 +105,8 @@ cd /tmp >/dev/null 2>&1;  expect_pwd "cd /tmp（绝对路径）" "/tmp"
 cd "$ROOT" >/dev/null 2>&1; expect_pwd "cd <绝对路径>" "$ROOT"
 cd alpha >/dev/null 2>&1;  expect_pwd "cd alpha（无 ./ 前缀）" "$ROOT/alpha"
 cd child >/dev/null 2>&1;  expect_pwd "cd child" "$ROOT/alpha/child"
+# cd .. 本身就是要测的行为，不能按 shellcheck 的建议包进子 shell
+# shellcheck disable=SC2103
 cd .. >/dev/null 2>&1;      expect_pwd "cd .." "$ROOT/alpha"
 cd - >/dev/null 2>&1;      expect_pwd "cd -" "$ROOT/alpha/child"
 cd - >/dev/null 2>&1;      expect_pwd "cd - 再来一次" "$ROOT/alpha"
@@ -116,7 +123,7 @@ builtin cd -- "$ROOT"
 cd './alpha' >/dev/null 2>&1;     expect_pwd "cd './alpha'（引号包裹）" "$ROOT/alpha"
 
 echo "== 9. 序号按目录数量，不数文件 =="
-printf '  文件数=%s 目录数=%s\n' "$(find "$ROOT" -maxdepth 1 -type f | wc -l)" "$(ls -d -- "$ROOT"/*/ | wc -l)"
+printf '  文件数=%s 目录数=%s\n' "$(find "$ROOT" -maxdepth 1 -type f | wc -l)" "$(find "$ROOT" -maxdepth 1 -mindepth 1 -type d ! -name '.*' | wc -l)"
 builtin cd -- "$ROOT"; cd ./"$n_nodots" >/dev/null 2>&1
 expect_pwd "cd ./最后一个序号 可用" "$ROOT/${LS_DIRS[$((n_nodots-1))]}"
 

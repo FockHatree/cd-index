@@ -58,18 +58,19 @@ _cd_index_do() {
   fi
 
   local target=${dirs[idx-1]%/}
-  builtin cd -- "$target"
+  # 用 || return 而不是 || exit：这是用户当前 shell 里的函数，绝不能把用户的 shell 杀掉
+  builtin cd -- "$target" || return
 }
 
 cd() {
   if [[ $# -eq 1 && $1 =~ ^\./([0-9]+)/?$ ]]; then
     # 真有同名目录时按原意处理，保证不改变正常行为
     if [[ -d $1 ]]; then
-      builtin cd -- "$1"
+      builtin cd -- "$1" || return
       return
     fi
     _cd_index_do "${BASH_REMATCH[1]}"
     return
   fi
-  builtin cd "$@"
+  builtin cd "$@" || return
 }

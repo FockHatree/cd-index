@@ -137,7 +137,7 @@ printf 'cd-index %s  %s\n' "$VERSION" "$REPO"
 
 if [[ $MODE == uninstall ]]; then
   uninstall_all
-  say '卸载完成，重开终端或执行 exec $SHELL 生效。'
+  say "卸载完成，重开终端或执行 exec \$SHELL 生效。"
 else
   if (( ! DRY )); then
     [[ -r $REPO/cd-index.bash ]] || { say "缺少 $REPO/cd-index.bash" >&2; exit 1; }
@@ -148,6 +148,6 @@ else
   if (( DRY )); then
     say '（dry-run 结束，上面就是将要做的改动）'
   else
-    say '安装完成。重开终端，或执行 exec $SHELL 后即可使用: cd ./3'
+    say "安装完成。重开终端，或执行 exec \$SHELL 后即可使用: cd ./3"
   fi
 fi

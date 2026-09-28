@@ -22,5 +22,5 @@ jobs:
       - name: shellcheck
         run: make lint
 
-      - name: 测试（bash 39 项 + zsh 40 项断言）
+      - name: 测试（bash + zsh 两套断言）
         run: make test
