@@ -5,16 +5,6 @@
 
 ## [未发布]
 
-### 修复
-
-- CI 的 `make lint`（shellcheck 0.9）报错导致流水线失败：
-  - `cd-index.bash`：`builtin cd` 加 `|| return`（不能 `|| exit`，否则会杀掉用户的 shell），消除 SC2164
-  - `install.sh`：提示语里的 `$SHELL` 改为双引号转义，消除 SC2016
-  - `test/bash.sh`：`cd` 本身就是被测对象，对 SC2164/SC2012/SC2103 加显式 disable 并注明理由；
-    目录计数由 `ls -d */ | wc -l` 改为 `find`（排除隐藏目录，与 `*/` 语义一致）
-  - `Makefile`：lint 目标加 `-x -P .`，修正 SC1091（`source=` 路径按仓库根解析）
-- 更正文档中的断言数：bash 套件为 40 项（此前误写 39）
-
 ## [0.1.0] - 2026-09-28
 
 ### 新增
@@ -30,3 +20,13 @@
 - 自测：bash 40 项断言、zsh 40 项断言，`make test` 一键运行；期望值全部从 `ls` 现算
 - GitHub Actions：`bash -n` / `zsh -n` 语法检查 + shellcheck + 双 shell 测试
 - README、LICENSE(MIT)、Makefile、`.editorconfig`
+
+### 修复
+
+- CI 的 `make lint`（shellcheck 0.9）报错导致流水线失败：
+  - `cd-index.bash`：`builtin cd` 加 `|| return`（不能 `|| exit`，否则会杀掉用户的 shell），消除 SC2164
+  - `install.sh`：提示语里的 `$SHELL` 改为双引号转义，消除 SC2016
+  - `test/bash.sh`：`cd` 本身就是被测对象，对 SC2164/SC2012/SC2103 加显式 disable 并注明理由；
+    目录计数由 `ls -d */ | wc -l` 改为 `find`（排除隐藏目录，与 `*/` 语义一致）
+  - `Makefile`：lint 目标加 `-x -P .`，修正 SC1091（`source=` 路径按仓库根解析）
+- 更正文档中的断言数：bash 套件为 40 项（此前误写 39）
